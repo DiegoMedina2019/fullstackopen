@@ -1,0 +1,10 @@
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+note over browser:
+the browser starts executing js-code clearing 
+the notes container and adding the new note to the list
+end note
+note over server:
+the server received the request POST and insert the new note 
+in the database responding with one code 201 and JSON message
+end note
+server-->browser: JSON {content: "spa coment", date: "2022-03-04T02:14:00.851Z"}
