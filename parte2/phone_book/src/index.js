@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {createRoot} from 'react-dom/client';
 import { Filter } from './Components/Filter';
 import { PersonForm  } from './Components/PersonForm ';
 import { Persons } from './Components/Persons';
+import  axios  from "axios";
 import './index.css';
 
 
 export const App = () => {
-  const [ persons, setPersons ] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ]) 
+  const [ persons, setPersons ] = useState([]) 
+
+  const getPersons = () => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then( response => {
+        console.log(response);
+        setPersons(response.data)
+      })
+  }
+
+  useEffect(getPersons, [])
+  
 
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNumber ] = useState('')
   const [ filter, setFilter ] = useState('')
+
 
   const handledChangeFilter = (event) => {
     setFilter(event.target.value)
@@ -67,10 +76,6 @@ export const App = () => {
   )
 }
 
-
-/* 
- VOY EN LA PARTE 2 DEBO REALIZAR EL EJERCICIO 2.10
-*/
 
 document.addEventListener("DOMContentLoaded", (event) =>{
   const root = createRoot(document.getElementById('root'));
