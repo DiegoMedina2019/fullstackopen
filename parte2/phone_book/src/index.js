@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {createRoot} from 'react-dom/client';
+import { Alert } from './Components/Alert';
 import { Filter } from './Components/Filter';
 import { PersonForm  } from './Components/PersonForm ';
 import { Persons } from './Components/Persons';
@@ -9,6 +10,13 @@ import personService from './services/persons'
 
 export const App = () => {
   const [ persons, setPersons ] = useState([]) 
+  const [ newName, setNewName ] = useState('')
+  const [ newNumber, setNumber ] = useState('')
+  const [ filter, setFilter ] = useState('')
+  const [ messageSucess, setMessageSucess ] = useState(null)
+  const [ messageError, setMessageError ] = useState(null)
+
+  /* CRUD */
 
   const getPersons = () => {
     personService
@@ -26,6 +34,12 @@ export const App = () => {
         setPersons(persons.concat( response ))
         setNewName('')
         setNumber('')
+        
+        setMessageSucess(`Added ${response.name}`)
+        setTimeout(() => {
+          setMessageSucess(null)
+        }, 5000);
+
       })
       .catch( err => console.log(err))
   }
@@ -39,9 +53,19 @@ export const App = () => {
         setPersons( persons.map( p => p.id !== id ? p: response) )
         setNewName('')
         setNumber('')
-        
+        setMessageSucess(`Edited ${response.name}`)
+        setTimeout(() => {
+          setMessageSucess(null)
+        }, 5000);
+
       })
-      .catch( err => console.log(err))
+      .catch( err => {
+        console.log(err)
+        setMessageError(`Information of ${p.name} has already been removed from server`)
+        setTimeout(() => {
+          setMessageError(null)
+        }, 5000);
+      })
   }
 
   const deletePerson = id => {
@@ -50,24 +74,31 @@ export const App = () => {
         .then(response => {
           console.log("persopna eliminada",response);
           setPersons( persons.filter(p => p.id !== id) )
+
+          setMessageSucess(`Person deleted`)
+          setTimeout(() => {
+            setMessageSucess(null)
+          }, 5000);
+
         })
         .catch(err => {
           console.log(err);
+          setMessageError(`The information has already been removed from the server before`)
+          
+          setTimeout(() => {
+            setMessageError(null)
+            getPersons()
+          }, 5000);
+
         })
   }
 
   useEffect(getPersons, [])
-  
 
-  const [ newName, setNewName ] = useState('')
-  const [ newNumber, setNumber ] = useState('')
-  const [ filter, setFilter ] = useState('')
-
-
+  /* METHODS */
   const handledChangeFilter = (event) => {
     setFilter(event.target.value)
   }
-
   const handledChangeName = (event) => {
     setNewName(event.target.value)
   }
@@ -77,14 +108,7 @@ export const App = () => {
   const handledSubmit = (event) => {
     event.preventDefault()
 
-    /* 
-      DEBO CREAR UNA LOGICA PARA VALIAR TANTO EL NOMBRE CONO EL NUMERO Y NO DEJAR EDITAR O GURARDAR
-      SI EL TELEFONO ES DIFERENTE PERMITIR EDITAR Y REEMPLAZAR EL NUMERO Y ACTUALIZAR EL LISTADO
-
-      VOY EN LA PARTE2 SECCION d EJECICIO 2.18
-    */
-
-      const validPerson = persons.filter(p => p.name === newName);
+    const validPerson = persons.filter(p => p.name === newName);
     if (validPerson.length > 0) {
       if( window.confirm(`${newName} is already added to phonebook!, replace the old number with a new one?`) ){
         const person = validPerson[0]
@@ -100,9 +124,14 @@ export const App = () => {
     }
   }
 
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <Alert 
+            messageSucess={messageSucess}
+            messageError={messageError}
+      />
       <Filter 
         filter={filter}
         handledChangeFilter={handledChangeFilter}
